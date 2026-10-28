@@ -1,0 +1,46 @@
+name: Tag Aliases Actions
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  create-alias-tags:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout tagged commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create and push alias tags
+        shell: bash
+        run: |
+          SOURCE_TAG="${GITHUB_REF_NAME}"
+
+          # Only run for canonical semver tags (vX.Y.Z)
+          if ! printf '%s' "$SOURCE_TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Tag $SOURCE_TAG is not canonical semver (vX.Y.Z). Skipping aliases."
+            exit 0
+          fi
+
+          VERSION="${SOURCE_TAG#v}"
+          MAJOR="${VERSION%%.*}"
+          REST="${VERSION#*.}"
+          MINOR="${REST%%.*}"
+
+          ALIAS_TAGS=("latest" "v${MAJOR}" "v${MAJOR}.${MINOR}")
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          for alias in "${ALIAS_TAGS[@]}"; do
+            echo "Updating alias tag: ${alias} -> ${SOURCE_TAG}"
+            git tag -fa "$alias" -m "Alias tag for ${SOURCE_TAG}"
+            git push origin "refs/tags/${alias}" --force
+          done

@@ -1,0 +1,115 @@
+name: Release Actions
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  github-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout tagged commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read tag metadata and changelog
+        id: release_data
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+
+          # Alias tags (latest, vMAJOR, vMAJOR.MINOR) also match the 'v*' push
+          # trigger and get force-pushed on every version bump, which re-fires
+          # this workflow. Only canonical vX.Y.Z tags are real releases.
+          if ! printf '%s' "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Tag $TAG is not canonical semver (vX.Y.Z). Skipping release."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+          TAG_MESSAGE=$(git for-each-ref "refs/tags/${TAG}" --format='%(contents)')
+
+          TEST_FLAG=$(printf '%s\n' "$TAG_MESSAGE" | grep '^META_TEST=' | cut -d= -f2 || true)
+          BUILD_FLAG=$(printf '%s\n' "$TAG_MESSAGE" | grep '^META_BUILD=' | cut -d= -f2 || true)
+
+          # Backward compatibility with old tags
+          if [ -z "$TEST_FLAG" ]; then
+            TEST_FLAG=$(printf '%s\n' "$TAG_MESSAGE" | grep '^TEST=' | cut -d= -f2 || true)
+          fi
+          if [ -z "$BUILD_FLAG" ]; then
+            BUILD_FLAG=$(printf '%s\n' "$TAG_MESSAGE" | grep '^BUILD=' | cut -d= -f2 || true)
+          fi
+
+          if [ -z "$TEST_FLAG" ]; then TEST_FLAG="false"; fi
+          if [ -z "$BUILD_FLAG" ]; then BUILD_FLAG="build-passed"; fi
+
+          if [ -f .changes/CHANGELOG.md ]; then
+            cp .changes/CHANGELOG.md /tmp/release-body.md
+          else
+            printf '# Release %s - %s - %s\n\n## Changelog\n\n### Major\nNenhuma alteração de impacto major\n\n### Minor\nNenhuma alteração de impacto minor\n\n### Patch\nNenhuma alteração de impacto patch\n' "$TAG" "$(date +%d/%m/%Y)" "$BUILD_FLAG" > /tmp/release-body.md
+          fi
+
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "test=${TEST_FLAG}" >> "$GITHUB_OUTPUT"
+          echo "build=${BUILD_FLAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update GitHub release
+        if: steps.release_data.outputs.skip != 'true'
+        uses: actions/github-script@v7
+        env:
+          TAG_NAME: ${{ steps.release_data.outputs.tag }}
+          TEST_FLAG: ${{ steps.release_data.outputs.test }}
+          BUILD_FLAG: ${{ steps.release_data.outputs.build }}
+        with:
+          script: |
+            const fs = require('fs');
+            const tagName = process.env.TAG_NAME;
+            const test = process.env.TEST_FLAG === 'true';
+            const build = process.env.BUILD_FLAG;
+            const version = tagName.replace(/^v/, '');
+            const date = new Date().toLocaleDateString('pt-BR');
+
+            const body = fs.readFileSync('/tmp/release-body.md', 'utf-8');
+            const releaseName = test
+              ? `#{TEST} Release ${version} - ${date} - ${build}`
+              : `Release ${version} - ${date} - ${build}`;
+
+            let existing = null;
+            try {
+              existing = await github.rest.repos.getReleaseByTag({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag: tagName,
+              });
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+
+            if (existing?.data?.id) {
+              await github.rest.repos.updateRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: existing.data.id,
+                name: releaseName,
+                body,
+                prerelease: test,
+                draft: false,
+              });
+            } else {
+              await github.rest.repos.createRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag_name: tagName,
+                name: releaseName,
+                body,
+                prerelease: test,
+                draft: false,
+              });
+            }

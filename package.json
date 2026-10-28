@@ -1,0 +1,61 @@
+{
+  "name": "@lotexiu/react",
+  "version": "0.0.0",
+  "private": false,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lotexiu/react"
+  },
+  "homepage": "https://github.com/lotexiu/react#readme",
+  "bugs": {
+    "url": "https://github.com/lotexiu/react/issues"
+  },
+  "description": "Adaptador de React para @lotexiu/typescript: liga signals/computed ao ciclo de render (e, no futuro, os componentes headless).",
+  "keywords": [
+    "react",
+    "signals",
+    "headless",
+    "lotexiu"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "pnpm clean && vite build && tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "check-types": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "peerDependencies": {
+    "@lotexiu/typescript": ">=2.0.0",
+    "react": ">=18"
+  },
+  "devDependencies": {
+    "@lotexiu/typescript": "workspace:*",
+    "@lotexiu/typescript-config": "workspace:*",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "jsdom": "*",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.9"
+  }
+}
