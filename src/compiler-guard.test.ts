@@ -9,6 +9,10 @@ const HOOKS: Record<string, string[]> = {
 	'use-version.ts': ['useVersion'],
 	'use-reactive.ts': ['useReactive', 'useMutableReactive'],
 	'use-signal.ts': ['useSignal', 'useComputed', 'useSubscribe'],
+	'use-part.ts': ['useTracked', 'usePart'],
+	'use-focus-trap.ts': ['useFocusTrap'],
+	'use-outside-pointer.ts': ['useOutsidePointer'],
+	'use-floating.ts': ['useFloating'],
 };
 
 describe("'use no memo' nos hooks", () => {

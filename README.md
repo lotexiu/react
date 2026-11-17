@@ -27,6 +27,19 @@ const keys = useMutableReactive(keyboard.keys)
 | `useComputed(fn, deps)` | computed local (recriado quando `deps` mudam) |
 | `useSubscribe(source, fn)` | efeito colateral a cada mudança |
 | `useVersion(source)` | o contador (`source.version()`) como número |
+| `useTracked(fn, deps)` | valor de uma função que lê signals, re-renderizando quando qualquer um muda |
+| `usePart(() => control.parts.x(), deps)` | atributos de uma parte headless já no formato do React |
+| `toReactProps(attributes)` | converte atributos HTML neutros (`tabindex`, `for`, `hidden: ''`…) para props do React |
+
+## Headless
+Os controles de `@lotexiu/typescript` (`Slider`, `Switch`, `Select`, `Form`…) não sabem nada de React. A ponte é uma linha por parte:
+
+```tsx
+function Volume({ slider }: { slider: Slider }) {
+  const thumb = usePart(() => slider.parts.thumb(), [slider])
+  return <div {...thumb} onKeyDown={slider.keydown} />   // o KeyboardEvent do React serve direto
+}
+```
 
 ## Por que existe `version()`
 `useSyncExternalStore` só re-renderiza quando o *snapshot* muda, e a lib incentiva mutar objetos no lugar + `notify()` (a referência não muda). O snapshot é `source.version()`, um contador sem rastreio; é lido de novo ao assinar, então mudanças entre render e assinatura não se perdem. O 3º argumento (`getServerSnapshot`) deixa os hooks seguros em SSR/Next.
