@@ -2,7 +2,7 @@ import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Slider, Switch } from '@lotexiu/typescript';
-import { toReactProps, usePart, useReactive } from './index';
+import { ReactPropsUtils, usePart, useReactive } from '../../index';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -14,9 +14,9 @@ beforeEach(() => {
 });
 afterEach(() => act(() => root.unmount()));
 
-describe('toReactProps', () => {
+describe('ReactPropsUtils.from', () => {
 	it('renames attributes React spells differently, turns presence into booleans and drops undefined', () => {
-		expect(toReactProps({ tabindex: 0, for: 'name', readonly: '', autocomplete: 'off', hidden: undefined, 'aria-checked': 'true', 'data-state': 'on' })).toEqual({
+		expect(ReactPropsUtils.from({ tabindex: 0, for: 'name', readonly: '', autocomplete: 'off', hidden: undefined, 'aria-checked': 'true', 'data-state': 'on' })).toEqual({
 			autoComplete: 'off',
 			tabIndex: 0,
 			htmlFor: 'name',

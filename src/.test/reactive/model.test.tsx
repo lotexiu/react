@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { computed, selection, signal } from '@lotexiu/typescript';
-import { useComputed, useMutableReactive, useReactive, useSignal, useSubscribe } from './index';
+import { useComputed, useMutableReactive, useReactive, useSignal, useSubscribe } from '../../index';
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 

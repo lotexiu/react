@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
-// `react` e `@lotexiu/typescript` são peer dependencies: nunca entram no bundle.
-const external = [/^react($|\/)/, /^@lotexiu\/typescript($|\/)/];
+// `react`, `@lotexiu/typescript` e `@lotexiu/dom` são peer dependencies: nunca entram no bundle.
+const external = [/^react($|\/)/, /^@lotexiu\/(typescript|dom)($|\/)/];
 
 export default defineConfig({
 	build: {

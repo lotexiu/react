@@ -1,6 +1,6 @@
 {
   "name": "@lotexiu/react",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": false,
   "license": "MIT",
   "repository": {
@@ -31,20 +31,28 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "pnpm clean && vite build && tsc -p tsconfig.json",
+    "build": "pnpm clean && pnpm docs:check && vite build && tsc -p tsconfig.json && pnpm dist:prepare",
     "clean": "rm -rf dist",
     "check-types": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "docs:ast": "tsx --tsconfig ../typescript/tsconfig.json ../typescript/src/.scripts/doc/generate.ts",
+    "docs:check": "tsx --tsconfig ../typescript/tsconfig.json ../typescript/src/.scripts/doc/generate.ts --check",
+    "docs:strict": "tsx --tsconfig ../typescript/tsconfig.json ../typescript/src/.scripts/doc/generate.ts --check --require-docs",
+    "dist:prepare": "tsx --tsconfig ../typescript/tsconfig.json ../typescript/src/.scripts/publish/prepare.ts",
+    "release": "pnpm build && npm publish ./dist --access public"
   },
   "peerDependencies": {
-    "@lotexiu/typescript": ">=2.0.0",
-    "react": ">=18"
+    "@lotexiu/typescript": "^2.0.0",
+    "react": ">=18",
+    "@lotexiu/dom": "^1.0.0"
   },
   "devDependencies": {
     "@lotexiu/typescript": "workspace:*",
@@ -56,6 +64,8 @@
     "react-dom": "^19.2.8",
     "typescript": "^6.0.3",
     "vite": "^8.0.16",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.9",
+    "@lotexiu/dom": "workspace:*",
+    "tsx": "^4.19.0"
   }
 }

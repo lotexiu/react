@@ -6,13 +6,13 @@ import { describe, expect, it } from 'vitest';
  * (cache por identidade de dados mutados no lugar). A diretiva `'use no memo'` é a defesa — este teste impede removê-la sem querer.
  */
 const HOOKS: Record<string, string[]> = {
-	'use-version.ts': ['useVersion'],
-	'use-reactive.ts': ['useReactive', 'useMutableReactive'],
-	'use-signal.ts': ['useSignal', 'useComputed', 'useSubscribe'],
-	'use-part.ts': ['useTracked', 'usePart'],
-	'use-focus-trap.ts': ['useFocusTrap'],
-	'use-outside-pointer.ts': ['useOutsidePointer'],
-	'use-floating.ts': ['useFloating'],
+	'version/model.ts': ['useVersion'],
+	'reactive/model.ts': ['useReactive', 'useMutableReactive'],
+	'signal/model.ts': ['useSignal', 'useComputed', 'useSubscribe'],
+	'part/model.ts': ['useTracked', 'usePart'],
+	'focus-trap/model.ts': ['useFocusTrap'],
+	'outside-pointer/model.ts': ['useOutsidePointer'],
+	'floating/model.ts': ['useFloating'],
 };
 
 describe("'use no memo' nos hooks", () => {

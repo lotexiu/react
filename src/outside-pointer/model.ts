@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
+import { PointerUtils } from '@lotexiu/dom';
 
 /**
  * Calls `handler` on a pointer down outside every element in `inside` while `active` — wire it to a control's
@@ -8,20 +9,18 @@ import type { RefObject } from 'react';
 function useOutsidePointer(inside: readonly RefObject<HTMLElement | null>[], handler: () => void, active: boolean): void {
 	'use no memo';
 	const latest = useRef(handler);
+	const elements = useRef(inside);
 	useEffect(() => {
 		latest.current = handler;
+		elements.current = inside;
 	});
 	useEffect(() => {
 		if (!active) return;
-		const listener = (event: PointerEvent) => {
-			const target = event.target as Node | null;
-			if (target !== null && inside.some((reference) => reference.current?.contains(target))) return;
-			latest.current();
-		};
-		document.addEventListener('pointerdown', listener, true);
-		return () => document.removeEventListener('pointerdown', listener, true);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [active, ...inside]);
+		return PointerUtils.onOutside(
+			() => elements.current.map((reference) => reference.current),
+			() => latest.current()
+		);
+	}, [active]);
 }
 
 export { useOutsidePointer };

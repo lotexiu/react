@@ -29,7 +29,10 @@ const keys = useMutableReactive(keyboard.keys)
 | `useVersion(source)` | o contador (`source.version()`) como número |
 | `useTracked(fn, deps)` | valor de uma função que lê signals, re-renderizando quando qualquer um muda |
 | `usePart(() => control.parts.x(), deps)` | atributos de uma parte headless já no formato do React |
-| `toReactProps(attributes)` | converte atributos HTML neutros (`tabindex`, `for`, `hidden: ''`…) para props do React |
+| `useFocusTrap(ref, active)` | prende o foco num dialog modal (sobre `trapFocus` do `@lotexiu/dom`) |
+| `useOutsidePointer(refs, handler, active)` | clique fora → `control.interactOutside` |
+| `useFloating(popover, anchorRef, floatingRef)` | posiciona um `Popover` e devolve `{ x, y, side… }` |
+| `ReactPropsUtils.from(attributes)` | converte atributos HTML neutros (`tabindex`, `for`, `hidden: ''`…) para props do React |
 
 ## Headless
 Os controles de `@lotexiu/typescript` (`Slider`, `Switch`, `Select`, `Form`…) não sabem nada de React. A ponte é uma linha por parte:
@@ -46,3 +49,5 @@ function Volume({ slider }: { slider: Slider }) {
 
 ## React Compiler
 O compilador de **quem consome** também compila pacotes do workspace (arquivos fora de `node_modules`) e reescreve `useMemo`/leituras em cache por identidade — o oposto do que estes hooks precisam. Por isso cada hook tem `'use no memo'` (e há um teste que garante isso). Em uso normal (pacote instalado de `node_modules`) o compilador já o ignora.
+
+A referência completa, gerada do código, fica em [`docs/api`](docs/api/README.md).
