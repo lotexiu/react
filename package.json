@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/lotexiu/react/issues"
   },
-  "description": "Adaptador de React para @lotexiu/typescript: liga signals/computed ao ciclo de render (e, no futuro, os componentes headless).",
+  "description": "Adaptador de React para @lotexiu/typescript: hooks para signals/computed (compatíveis com SSR e React Compiler), partes dos controles headless, foco preso, clique fora e flutuantes.",
   "keywords": [
     "react",
     "signals",
